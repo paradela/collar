@@ -1,9 +1,9 @@
-COMPONENT=RadioMessageAppC
-BUILD_EXTRA_DEPS = RadioMessage.py
-CLEAN_EXTRA = RadioMessage.py RadioMessage.pyc
+COMPONENT=RadioMsgAppC
+BUILD_EXTRA_DEPS = RadioMsg.py
+CLEAN_EXTRA = RadioMsg.py RadioMsg.pyc
 
-RadioMessage.py: RadioMessage.h
-	mig python -target=$(PLATFORM) $(CFLAGS) -python-classname=RadioMessage RadioMessage.h radio_msg -o $@
+RadioMsg.py: RadioMsg.h
+	mig python -target=$(PLATFORM) $(CFLAGS) -python-classname=RadioMsg RadioMsg.h radio_msg -o $@
 
 include $(MAKERULES)
 
