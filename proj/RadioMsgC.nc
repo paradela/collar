@@ -17,7 +17,8 @@ implementation {
   message_t packet;
 
   bool locked;
-  uint16_t counter = 0;
+  uint16_t lastMsg = -1;
+  
   
   event void Boot.booted() {
     call AMControl.start();
@@ -37,7 +38,8 @@ implementation {
   }
   
   event void MilliTimer.fired() {
-    counter++;
+    /*counter++;
+    
     dbg("RadioMsgC", "RadioMsgC: timer fired, counter is %hu.\n", counter);
     if (locked) {
       return;
@@ -54,15 +56,37 @@ implementation {
 	dbg("RadioMsgC", "RadioMsgC: packet sent.\n", counter);	
 	locked = TRUE;
       }
-    }
+    }*/
   }
 
   event message_t* Receive.receive(message_t* bufPtr, 
 				   void* payload, uint8_t len) {
-    dbg("RadioMsgC", "Received packet of length %hhu.\n", len);
+    dbg("RadioMsgC", "Receive\n");				   
     if (len != sizeof(radio_msg_t)) {return bufPtr;}
     else {
       radio_msg_t* rcm = (radio_msg_t*)payload;
+      dbg("RadioMsgC", "Received packet. ID: %d.\n", rcm->id);
+      
+      if(rcm->id == lastMsg){
+		  dbg("RadioMsgC", "Message discarded. ID: %d.\n", rcm->id);
+		  return bufPtr;
+	  }
+	  else lastMsg = rcm->id;
+      
+      if(rcm->dest == TOS_NODE_ID){
+		  dbg("RadioMsgC", "Message reached destination.\n");
+	  }
+	  else {
+		  if(!locked){
+			  radio_msg_t* msg = (radio_msg_t*)(call Packet.getPayload(&packet, sizeof(radio_msg_t)));
+			  msg->dest = rcm->dest;
+			  msg->id = rcm->id;
+			  if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_msg_t)) == SUCCESS) {
+				  dbg("RadioMsgC", "Packet broadcasted. Destination %d\n", msg->dest);	
+				  locked = TRUE;
+			  }
+		  }
+	  }
       return bufPtr;
     }
   }

@@ -7,8 +7,7 @@ t = Tossim([])
 m = t.mac()
 r = t.radio()
 
-#t.addChannel("BlinkToRadioC", sys.stdout)
-#t.addChannel("LedsC", sys.stdout)
+t.addChannel("BlinkC", sys.stdout)
 
 for i in range(3):
 	m = t.getNode(i)
@@ -31,19 +30,21 @@ for line in noise:
 for i in range(4):
 	t.getNode(i).createNoiseModel()
 
-#for i in range(1000):
-	#t.runNextEvent()
+for i in range(1000):
+	t.runNextEvent()
   
 #print "Creating message now!";
 
-#msg = BlinkToRadioMessage()
-#pkt = t.newPacket()
-#pkt.setData(msg.data)
-#pkt.setType(msg.get_amType())
-#pkt.setDestination(0)
+msg = BlinkToRadioMessage()
+msg.set_nodeid(2)
+msg.set_counter(0)
+pkt = t.newPacket()
+pkt.setData(msg.data)
+pkt.setType(msg.get_amType())
+pkt.setDestination(0)
 
-#print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 3);
-#pkt.deliver(0, t.time() + 3)
+print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 3);
+pkt.deliver(0, t.time() + 3)
 
 
 for i in range(1000):

@@ -98,20 +98,21 @@ implementation {
     else {
       radio_count_msg_t* rcm = (radio_count_msg_t*)call Packet.getPayload(&packet, sizeof(radio_count_msg_t));
       if (rcm == NULL) {
-	return;
+		return;
       }
 
       rcm->counter = counter;
-      /*if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_count_msg_t)) == SUCCESS) {
-	dbg("RadioCountToLedsC", "RadioCountToLedsC: packet sent.\n", counter);	
-	locked = TRUE;
-      }*/
+      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_count_msg_t)) == SUCCESS) {
+		dbg("RadioCountToLedsC", "RadioCountToLedsC: packet sent.\n", counter);	
+		locked = TRUE;
+      }
       
     }
   }
 
   event message_t* Receive.receive(message_t* bufPtr, 
 				   void* payload, uint8_t len) {
+					   dbg("RadioCountToLedsC", "Message Received\n");
     if (len != sizeof(radio_count_msg_t)) {return bufPtr;}
     else {
       radio_count_msg_t* rcm = (radio_count_msg_t*)payload;
