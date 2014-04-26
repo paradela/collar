@@ -1,0 +1,9 @@
+proj/*.o
+proj/*.class
+proj/*.pyc
+proj/*.py
+proj/*.java
+proj/simbuild
+proj/simbuild/*
+proj/app.xml
+proj/*.so
