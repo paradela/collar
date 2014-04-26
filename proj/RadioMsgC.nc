@@ -1,15 +1,16 @@
 #include "Timer.h"
 #include "RadioMsg.h"
+#include "gps.h"
 
 module RadioMsgC @safe() {
   uses {
-    interface Leds;
     interface Boot;
     interface Receive;
     interface AMSend;
     interface Timer<TMilli> as MilliTimer;
     interface SplitControl as AMControl;
     interface Packet;
+    interface gps;
   }
 }
 implementation {
@@ -61,6 +62,7 @@ implementation {
 
   event message_t* Receive.receive(message_t* bufPtr, 
 				   void* payload, uint8_t len) {
+	position_t pos;
     dbg("RadioMsgC", "Receive\n");				   
     if (len != sizeof(radio_msg_t)) {return bufPtr;}
     else {
@@ -75,6 +77,8 @@ implementation {
       
       if(rcm->dest == TOS_NODE_ID){
 		  dbg("RadioMsgC", "Message reached destination.\n");
+		   pos = call gps.getPosition();
+		  dbg("RadioMsgC", "Location: x=%d y=%d\n", pos.x, pos.y);
 	  }
 	  else {
 		  if(!locked){

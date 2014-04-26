@@ -10,6 +10,7 @@ implementation {
   components gpsC as GPS;
   
   App.Boot -> MainC.Boot;
+  GPS.Boot -> MainC.Boot;
   
   App.Receive -> AMReceiverC;
   App.AMSend -> AMSenderC;

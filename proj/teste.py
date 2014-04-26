@@ -8,6 +8,7 @@ m = t.mac()
 r = t.radio()
 
 t.addChannel("RadioMsgC", sys.stdout)
+t.addChannel("GPS", sys.stdout)
 
 for i in range(4):
   m = t.getNode(i)
@@ -41,8 +42,8 @@ pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
 pkt.setDestination(0)
 
-print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 3);
-pkt.deliver(0, t.time() + 3)
+print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 10000);
+pkt.deliver(0, t.time() + 10000)
 
 
 for i in range(20):

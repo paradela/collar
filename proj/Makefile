@@ -1,4 +1,4 @@
-COMPONENT=RadioMsgAppC
+COMPONENT=CollarAppC
 BUILD_EXTRA_DEPS = RadioMsg.py
 CLEAN_EXTRA = RadioMsg.py RadioMsg.pyc
 
