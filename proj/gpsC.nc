@@ -16,7 +16,6 @@ implementation {
 		last_update = time(&last_update);
 		pos.x = (rand() % 1000) + 1;
 		pos.y = (rand() % 1000) + 1;
-		dbg("GPS", "Booted. x=%d y=%d\n", pos.x, pos.y);
     }
 	
 	command	position_t gps.getPosition() {
@@ -34,8 +33,6 @@ implementation {
 		
 		step_x = (dir_x * time_spent * 0.5);
 		step_y = (dir_y * time_spent * 0.5);
-		
-		dbg("GPS", "last_update %lld current %lld dir_x %d dir_y %d\n", (long long)last_update, (long long)current_time, dir_x, dir_y);
 	
 		pos.x = tmp_x + step_x;
 		pos.y = tmp_y + step_y;

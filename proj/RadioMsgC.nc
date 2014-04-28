@@ -82,7 +82,6 @@ implementation {
 	position_t pos;
 	uint16_t i;
 	uint16_t v;
-    dbg("RadioMsgC", "Receive\n");
     
     
     if (len != sizeof(radio_msg_t)) {return bufPtr;}

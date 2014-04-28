@@ -1,12 +1,23 @@
 #! /usr/bin/python
 import sys
-from threading import Thread
+import threading
 from time import sleep
 from random import randint
 
 from TOSSIM import *
 from RadioMsg import *
 
+class ThreadEvents (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.running = True
+        
+    def run(self):
+		while (self.running):
+			for i in range(20):
+				t.runNextEvent()
+			sleep(0.5)
+	
 def setUpNodes(tossim):
 	for i in range(4):
 		m = tossim.getNode(i)
@@ -32,11 +43,7 @@ def loadNoiseModel(tossim):
 	for i in range(4):
 		tossim.getNode(i).createNoiseModel()
 
-def runEvents ():
-	while (1):
-		for i in range(20):
-			t.runNextEvent()
-		sleep(0.5)
+
 
 def sendMessage(tossim, msg):
 	pkt = tossim.newPacket()
@@ -115,16 +122,26 @@ def readQuantity():
 	return int(a)
 
 def readInput(tossim):
-	a = raw_input("Chose an option[0-7]: ")
-	if(a == '0'):
+	while(1):
+		i = raw_input("Chose an option[0-7]: ")
+		a = int(i)
+	
+		if(a < 0  and a > 6):
+			print "Error!!!! invalid input"
+			continue
+		break
+		
+	if(a == 0):
+		thread.running = False
+		thread.join()
 		exit()
 	options = {
-		'1' : getLocation,
-		'2' : getLastKnownLocation,
-		'3' : getAnimalEatenFood,
-		'4' : getLeftFoodInSpots,
-		'5' : setAnimalFood,
-		'6' : setSpotFood,
+		1 : getLocation,
+		2 : getLastKnownLocation,
+		3 : getAnimalEatenFood,
+		4 : getLeftFoodInSpots,
+		5 : setAnimalFood,
+		6 : setSpotFood,
 	}
 	options[a](tossim)
 
@@ -139,7 +156,7 @@ if __name__ == "__main__":
 	loadTopology("topo.txt", r)
 	loadNoiseModel(t)
 	
-	thread = Thread(target = runEvents, args = ())
+	thread = ThreadEvents()
 	thread.start()
 	
 	while (1):

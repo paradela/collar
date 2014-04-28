@@ -17,7 +17,6 @@ implementation {
 
   event void Boot.booted() {
     last_update = time(&last_update);
-    dbg("RFID", "RFID Booted at:%d.\n", (long long)last_update);
     call MilliTimer.startPeriodic(300);
   }
 
@@ -26,9 +25,7 @@ implementation {
 		uint16_t sensor;
 		
 		sensor = call FeedingSpot.sense();
-			
-		dbg("RFID", "Sensor: %d \n", sensor);
-			
+		
 		if (sensor) {
 				food = call FeedingSpot.getFoodInfo();
 				dbg("RFID", "There are %dkg of food left in the FSpot.\n This animal is allowed to eat %dkg of food.\n", food.quantity_tot, food.quantity_ind);		
