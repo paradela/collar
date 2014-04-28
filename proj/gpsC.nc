@@ -14,8 +14,8 @@ implementation {
 	
 	event void Boot.booted() {
 		last_update = time(&last_update);
-		pos.x = rand() % 1000;
-		pos.y = rand() % 1000;
+		pos.x = (rand() % 1000) + 1;
+		pos.y = (rand() % 1000) + 1;
 		dbg("GPS", "Booted. x=%d y=%d\n", pos.x, pos.y);
     }
 	
