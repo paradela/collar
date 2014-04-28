@@ -33,7 +33,7 @@ implementation {
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
-      call MilliTimer.startPeriodic(250); // 1 minute = 60000
+      call MilliTimer.startPeriodic(60000); // 1 minute = 60000
     }
     else {
       call AMControl.start();
@@ -105,7 +105,7 @@ implementation {
 					if(p.x != 0 && p.y != 0) {
 						dbg("RadioMsgC", "Last Location known of node %d is: x=%d y=%d\n", rcm->dest, p.x, p.y);
 					}
-					else broadcast = TRUE;
+					broadcast = TRUE;
 				}
 				break;
 			case GET_EATEN_FOOD:
