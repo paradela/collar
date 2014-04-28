@@ -10,26 +10,31 @@ r = t.radio()
 t.addChannel("RadioMsgC", sys.stdout)
 t.addChannel("GPS", sys.stdout)
 
-for i in range(4):
-  m = t.getNode(i)
-  m.bootAtTime((31 + t.ticksPerSecond() / 10) * i + 1)
+def setUpNodes():
+	for i in range(10000):
+		m = t.getNode(i)
+		m.bootAtTime((31 + t.ticksPerSecond() / 10) * i + 1)
 
-f = open("topo.txt", "r")
-for line in f:
-  s = line.split()
-  if s:
-    r.add(int(s[0]), int(s[1]), float(s[2]))
+#receive a file name 
+def loadTopology(name)
+	f = open(name, "r")
+	for line in f:
+	  s = line.split()
+	  if s:
+		r.add(int(s[0]), int(s[1]), float(s[2]))
+	
+def loadNoideModel()
+	noise = open("meyer-heavy.txt", "r")
+	for line in noise:
+	  s = line.strip()
+	  if s:
+		val = int(s)
+		for i in range(4):
+		  t.getNode(i).addNoiseTraceReading(val)
+	
+	for i in range(4):
+		t.getNode(i).createNoiseModel()
 
-noise = open("meyer-heavy.txt", "r")
-for line in noise:
-  s = line.strip()
-  if s:
-    val = int(s)
-    for i in range(4):
-      t.getNode(i).addNoiseTraceReading(val)
-
-for i in range(4):
-  t.getNode(i).createNoiseModel()
 
 for i in range(60):
   t.runNextEvent()
