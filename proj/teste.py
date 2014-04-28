@@ -37,14 +37,17 @@ for i in range(60):
 msg = RadioMsg()
 msg.set_id(1)
 msg.set_dest(2)
+msg.set_type(5)
+msg.set_spot(20)
+msg.set_quantity(100)
 pkt = t.newPacket()
 pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
 pkt.setDestination(0)
 
-print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 10000);
-pkt.deliver(0, t.time() + 10000)
+print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 3);
+pkt.deliver(0, t.time() + 3)
 
 
-for i in range(20):
+for i in range(1000):
   t.runNextEvent()
