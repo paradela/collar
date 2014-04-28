@@ -160,7 +160,6 @@ implementation {
 			case MY_LOCATION:
 				animals_locations[rcm->src].x = rcm->x;
 				animals_locations[rcm->src].y = rcm->y;
-				dbg("RadioMsgC", "Animal %d announced is location at x=%d y=%d\n", rcm->src, rcm->x, rcm->y);
 				broadcast = TRUE;
 				break;
 			case EATEN_FROM_SPOT:
@@ -170,7 +169,6 @@ implementation {
 					feeding_spots[rcm->spot] = v;
 				}
 				else feeding_spots[rcm->spot] = 0;
-				dbg("RadioMsgC", "FS %d has %d Kg less\n", rcm->spot, v);
 				broadcast = TRUE;
 				break;
 		}
