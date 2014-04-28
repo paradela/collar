@@ -12,17 +12,19 @@ module rfidC {
 
 implementation {
 
-  time_t last_update;
-  food_info food;	
+	time_t last_update;
+	food_info food;	
 
-  event void Boot.booted() {
+	event void Boot.booted() {
     last_update = time(&last_update);
     call MilliTimer.startPeriodic(300);
   }
 
+
 	event void MilliTimer.fired() {
 
 		uint16_t sensor;
+		dbg("RFID", "Sensor\n");
 		
 		sensor = call FeedingSpot.sense();
 		
@@ -34,4 +36,5 @@ implementation {
       food = call FeedingSpot.getFoodInfo();
       dbg("RadioMsgC", "Teste do update da comida do bicho: %d\n", food.quantity_ind); */
 	}
+	
 }
