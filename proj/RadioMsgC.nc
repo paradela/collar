@@ -11,8 +11,8 @@ module RadioMsgC @safe() {
     interface SplitControl as AMControl;
     interface Packet;
     interface gps;
-    interface FoodInfo as FeedingSpot;
   }
+   provides interface FoodInfo as FeedingSpot;
 }
 implementation {
 
@@ -31,8 +31,6 @@ implementation {
   
   
   event void Boot.booted() {
-    call FeedingSpot.initFoodInfo();  
-	call MilliTimer.startPeriodic(200);
     call AMControl.start();
   }
 
@@ -51,7 +49,6 @@ implementation {
   
   event void MilliTimer.fired() {
 
-	uint16_t sensor;
 	position_t p; 
 	radio_msg_t* rcm;
     
@@ -59,14 +56,6 @@ implementation {
 		return;
     }
     else {
-		sensor = call FeedingSpot.sense();
-		
-		//dbg("RadioMsgC", "Sensor: %d \n", sensor);
-		
-		if (sensor) {
-			food = call FeedingSpot.getFoodInfo();
-			dbg("RadioMsgC", "There are %dkg of food left in the FSpot.\n This animal is allowed to eat %dkg of food.\n", food.quantity_tot, food.quantity_ind);		
-		}
 			
 		rcm = (radio_msg_t*)call Packet.getPayload(&packet, sizeof(radio_msg_t));
 		if (rcm == NULL) {
@@ -95,9 +84,6 @@ implementation {
 	uint16_t v;
     dbg("RadioMsgC", "Receive\n");
     
-    /*call FeedingSpot.setBichoFood(rcm->id);
-      food = call FeedingSpot.getFoodInfo();
-      dbg("RadioMsgC", "Teste do update da comida do bicho: %d\n", food.quantity_ind); */
     
     if (len != sizeof(radio_msg_t)) {return bufPtr;}
     else {
@@ -195,6 +181,40 @@ implementation {
     if (&packet == bufPtr) {
       locked = FALSE;
     }
+  }
+  
+  command uint16_t FeedingSpot.sense() {
+	uint16_t bicho_near;
+	
+	bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
+	
+	return bicho_near;
+ }
+ 
+  command void FeedingSpot.initFoodInfo() {
+	uint16_t bicho_food = (rand() % 5);
+	uint16_t fspot_food = (rand() % 15);
+	
+	food.quantity_tot = fspot_food + 1;
+	food.quantity_ind = bicho_food + 1;
+  }
+  
+  command food_info FeedingSpot.getFoodInfo(){
+    return food;
+  }
+  
+  command void FeedingSpot.setBichoFood(uint16_t value) {
+	if(value < 0)
+		return;
+	else 	
+		food.quantity_ind = value;
+  }
+  
+  command void FeedingSpot.setFSpotFood(uint16_t value) {
+	if(value < 0)
+		return;
+	else 	
+		food.quantity_tot = value;
   }
 }
 

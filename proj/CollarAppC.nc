@@ -20,7 +20,10 @@ implementation {
   App.MilliTimer -> TimerMilliC;
   App.Packet -> AMSenderC;
   App.gps -> GPS;
-  App.FeedingSpot -> RFID;
+  
+  
+  RFID.MilliTimer-> TimerMilliC;
+  RFID.FeedingSpot -> App;
 }
 
 

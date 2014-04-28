@@ -5,8 +5,9 @@
 module rfidC {
   uses {
     interface Boot;
+    interface FoodInfo as FeedingSpot;
+    interface Timer<TMilli> as MilliTimer;
   }
-  provides interface FoodInfo as FeedingSpot;
 }
 
 implementation {
@@ -16,43 +17,24 @@ implementation {
 
   event void Boot.booted() {
     last_update = time(&last_update);
-
-    dbg("RFID", "RFID Booted at:%d.", (long long)last_update);
+    dbg("RFID", "RFID Booted at:%d.\n", (long long)last_update);
+    call MilliTimer.startPeriodic(300);
   }
 
- 
- command uint16_t FeedingSpot.sense() {
-	uint16_t bicho_near;
-	
-	bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
-	
-	return bicho_near;
- }
- 
-  command void FeedingSpot.initFoodInfo() {
-	uint16_t bicho_food = (rand() % 5);
-	uint16_t fspot_food = (rand() % 15);
-	
-	food.quantity_tot = fspot_food + 1;
-	food.quantity_ind = bicho_food + 1;
-  }
-  
-  command food_info FeedingSpot.getFoodInfo(){
-    return food;
-  }
-  
-  command void FeedingSpot.setBichoFood(uint16_t value) {
-	if(value < 0)
-		return;
-	else 	
-		food.quantity_ind = value;
-  }
-  
-  command void FeedingSpot.setFSpotFood(uint16_t value) {
-	if(value < 0)
-		return;
-	else 	
-		food.quantity_tot = value;
-  }
-  
+	event void MilliTimer.fired() {
+
+		uint16_t sensor;
+		
+		sensor = call FeedingSpot.sense();
+			
+		dbg("RFID", "Sensor: %d \n", sensor);
+			
+		if (sensor) {
+				food = call FeedingSpot.getFoodInfo();
+				dbg("RFID", "There are %dkg of food left in the FSpot.\n This animal is allowed to eat %dkg of food.\n", food.quantity_tot, food.quantity_ind);		
+		}
+	 /*call FeedingSpot.setBichoFood(rcm->id);
+      food = call FeedingSpot.getFoodInfo();
+      dbg("RadioMsgC", "Teste do update da comida do bicho: %d\n", food.quantity_ind); */
+	}
 }
