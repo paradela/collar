@@ -193,12 +193,10 @@ implementation {
 	return bicho_near;
  }
  
-  command void FeedingSpot.initFoodInfo() {
-	uint16_t bicho_food = (rand() % 5);
-	uint16_t fspot_food = (rand() % 15);
+  command void FeedingSpot.initFoodInfo(uint16_t val1, uint16_t val2) {
 	
-	food.quantity_tot = fspot_food + 1;
-	food.quantity_ind = bicho_food + 1;
+	food.quantity_tot = val1;
+	food.quantity_ind = val2;
   }
   
   command food_info FeedingSpot.getFoodInfo(){
