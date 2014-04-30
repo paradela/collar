@@ -116,7 +116,7 @@ def readQuantity():
 
 def readInput(tossim):
 	a = raw_input("Chose an option[0-7]: ")
-	if(a == 0):
+	if(a == '0'):
 		exit()
 	options = {
 		'1' : getLocation,
@@ -134,6 +134,7 @@ if __name__ == "__main__":
 	r = t.radio()
 	t.addChannel("RadioMsgC", sys.stdout)
 	t.addChannel("GPS", sys.stdout)
+	t.addChannel("RFID", sys.stdout)
 	setUpNodes(t)
 	loadTopology("topo.txt", r)
 	loadNoiseModel(t)
