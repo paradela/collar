@@ -8,9 +8,11 @@ implementation {
   components new TimerMilliC();
   components ActiveMessageC;
   components gpsC as GPS;
+  components rfidC as RFID;
   
   App.Boot -> MainC.Boot;
   GPS.Boot -> MainC.Boot;
+  RFID.Boot -> MainC.Boot;
   
   App.Receive -> AMReceiverC;
   App.AMSend -> AMSenderC;
@@ -18,6 +20,7 @@ implementation {
   App.MilliTimer -> TimerMilliC;
   App.Packet -> AMSenderC;
   App.gps -> GPS;
+  App.FeedingSpot -> RFID;
 }
 
 

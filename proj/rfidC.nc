@@ -1,53 +1,58 @@
 #include "FoodInfo.h"
-#include "BichoInfo.h"
 #include <stdlib.h>
 #include <time.h>
 
 module rfidC {
   uses {
     interface Boot;
-    interface Timer<TMilli> as MilliTimer;
-    interface SplitControl as AMControl;
-    interface BichoInfo;
-    interface FoodInfo;
   }
+  provides interface FoodInfo as FeedingSpot;
 }
 
 implementation {
 
   time_t last_update;
+  food_info food;	
 
   event void Boot.booted() {
     last_update = time(&last_update);
-    dbg("RFID", "Booted.");
-  }
-  
-  event void AMControl.startDone(error_t err) {
-    if (err == SUCCESS) {
-      call MilliTimer.startPeriodic(300);
-    }
-    else {
-      call AMControl.start();
-    }
+
+    dbg("RFID", "RFID Booted at:%d.", (long long)last_update);
   }
 
-  event void AMControl.stopDone(error_t err) {
-    // do nothing
+ 
+ command uint16_t FeedingSpot.sense() {
+	uint16_t bicho_near;
+	
+	bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
+	
+	return bicho_near;
+ }
+ 
+  command void FeedingSpot.initFoodInfo() {
+	uint16_t bicho_food = (rand() % 5);
+	uint16_t fspot_food = (rand() % 15);
+	
+	food.quantity_tot = fspot_food + 1;
+	food.quantity_ind = bicho_food + 1;
   }
   
-  event void MilliTimer.fired() {
-
-  food_i food_control;
-  bicho_i bicho_control;
-    
-  dbg("rfidC", "rfidC: timer fired.\n");
-    
-  food_control = call FoodInfo.getLeftOvers();
-  dbg("rfidC", "There are %d kg left.\n", food_control.quantity);
+  command food_info FeedingSpot.getFoodInfo(){
+    return food;
+  }
   
-  bicho_control = call BichoInfo.getInfo();
-  dbg("rfidC", "This animal can eat %d kg of food.\n", bicho_control.ind_quantity);
+  command void FeedingSpot.setBichoFood(uint16_t value) {
+	if(value < 0)
+		return;
+	else 	
+		food.quantity_ind = value;
+  }
   
+  command void FeedingSpot.setFSpotFood(uint16_t value) {
+	if(value < 0)
+		return;
+	else 	
+		food.quantity_tot = value;
   }
   
 }
