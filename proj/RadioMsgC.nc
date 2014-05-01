@@ -29,7 +29,7 @@ implementation {
   uint16_t eaten = 0;
   uint16_t can_eat = 0;
   
-  
+ 
   event void Boot.booted() {
     call AMControl.start();
   }
@@ -155,6 +155,7 @@ implementation {
 			case EATEN_FROM_SPOT:
 				v = feeding_spots[rcm->spot];
 				v -= rcm->quantity;
+				dbg("RadioMsgC", "Got the msg!\n");
 				if(v >= 0){
 					feeding_spots[rcm->spot] = v;
 				}
