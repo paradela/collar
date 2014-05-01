@@ -17,7 +17,6 @@ module RadioMsgC @safe() {
 implementation {
 
   message_t packet;
-  food_info food;
 
   bool locked;
   uint16_t lastMsg = -1;
@@ -25,6 +24,7 @@ implementation {
   
   animals_pos_t animals_locations[10000]; //last known positions
   uint16_t feeding_spots[100]; //food in spots
+  food_info animals_food[10000];
   
   uint16_t eaten = 0;
   uint16_t can_eat = 0;
@@ -117,14 +117,18 @@ implementation {
 				break;
 			case GET_EATEN_FOOD:
 				if(rcm->dest == TOS_NODE_ID){ //DESTINATION
-					dbg("RadioMsgC", "My stomach is empty :( \n");
+					animals_food[rcm->dest] = call FeedingSpot.getFoodInfo(rcm->dest);
+					if(!animals_food[rcm->dest].quantity_tot)
+						dbg("RadioMsgC", "My stomach is empty :( \n");
+					else 
+						dbg("RadioMsgC", "Today I ate %dkg of food! \n", animals_food[rcm->dest].quantity_tot);
 				}
 				else broadcast = TRUE;
 				break;
 			case GET_LEFT_FOOD:
 				for(i = 0; i < 100; i++){
 					if(feeding_spots[i] != 0) {
-						dbg("RadioMsgC", "FS have %d Kg of food\n", feeding_spots[i]);
+						dbg("RadioMsgC", "FS has %d Kg of food\n", feeding_spots[i]);
 					}
 				}
 				dbg("RadioMsgC", "(Those feeding spots not listed are empty)\n");
@@ -132,8 +136,9 @@ implementation {
 				break;
 			case UPDT_ANIMAL_FOOD:
 				if(rcm->dest == TOS_NODE_ID){ //DESTINATION
-					can_eat = rcm->quantity;
-					dbg("RadioMsgC", "YEY! Now I can eat %d Kg everyday!\n", can_eat);
+					animals_food[rcm->dest] = call FeedingSpot.getFoodInfo(rcm->dest);
+					animals_food[rcm->dest].quantity_ind = rcm->quantity;
+					dbg("RadioMsgC", "YEY! Now I can eat %d Kg everyday!\n", animals_food[rcm->dest].quantity_ind);
 				}
 				else broadcast = TRUE;
 				break;
@@ -190,28 +195,9 @@ implementation {
 	return bicho_near;
  }
  
-  command void FeedingSpot.initFoodInfo(uint16_t val1, uint16_t val2) {
-	
-	food.quantity_tot = val1;
-	food.quantity_ind = val2;
-  }
-  
-  command food_info FeedingSpot.getFoodInfo(){
-    return food;
-  }
-  
-  command void FeedingSpot.setBichoFood(uint16_t value) {
-	if(value < 0)
-		return;
-	else 	
-		food.quantity_ind = value;
-  }
-  
-  command void FeedingSpot.setFSpotFood(uint16_t value) {
-	if(value < 0)
-		return;
-	else 	
-		food.quantity_tot = value;
+
+  command food_info FeedingSpot.getFoodInfo(uint16_t id){
+    return animals_food[id];
   }
 }
 

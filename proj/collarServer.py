@@ -123,7 +123,7 @@ def readQuantity():
 
 def readInput(tossim):
 	while(1):
-		i = raw_input("Chose an option[0-7]: ")
+		i = raw_input("Choose an option[0-7]: ")
 		a = int(i)
 	
 		if(a < 0  and a > 6):
