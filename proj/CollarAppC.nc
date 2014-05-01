@@ -3,8 +3,7 @@
 configuration CollarAppC {}
 implementation {
   components MainC, RadioMsgC as App;
-  components new AMSenderC(AM_RADIO_MSG) as AMSender1;
-  components new AMSenderC(AM_RADIO_MSG) as AMSender2;
+  components new AMSenderC(AM_RADIO_MSG);
   components new AMReceiverC(AM_RADIO_MSG);
   components new TimerMilliC() as Timer1;
   components new TimerMilliC() as Timer2;
@@ -17,17 +16,15 @@ implementation {
   RFID.Boot -> MainC.Boot;
   
   App.Receive -> AMReceiverC;
-  App.AMSend -> AMSender1;
+  App.AMSend -> AMSenderC;
   App.AMControl -> ActiveMessageC;
   App.MilliTimer -> Timer1;
-  App.Packet -> AMSender1;
+  App.Packet -> AMSenderC;
   App.gps -> GPS;
   
   
   RFID.MilliTimer-> Timer2;
   RFID.FeedingSpot -> App;
-  RFID.AMSend -> AMSender2;
-  RFID.Packet -> AMSender2;
 }
 
 

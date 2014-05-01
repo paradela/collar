@@ -128,7 +128,7 @@ implementation {
 			case GET_LEFT_FOOD:
 				for(i = 0; i < 100; i++){
 					if(feeding_spots[i] != 0) {
-						dbg("RadioMsgC", "FS has %d Kg of food\n", feeding_spots[i]);
+						dbg("RadioMsgC", "FS %d has %d Kg of food\n", i, feeding_spots[i]);
 					}
 				}
 				dbg("RadioMsgC", "(Those feeding spots not listed are empty)\n");
@@ -155,9 +155,12 @@ implementation {
 			case EATEN_FROM_SPOT:
 				v = feeding_spots[rcm->spot];
 				v -= rcm->quantity;
-				dbg("RadioMsgC", "Got the msg!\n");
 				if(v >= 0){
 					feeding_spots[rcm->spot] = v;
+					if (v >= animals_food[rcm->dest].quantity_ind)
+						animals_food[rcm->dest].quantity_tot = rcm->quantity; 
+					else 
+						animals_food[rcm->dest].quantity_tot += v;
 				}
 				else feeding_spots[rcm->spot] = 0;
 				broadcast = TRUE;
@@ -200,6 +203,31 @@ implementation {
   command food_info FeedingSpot.getFoodInfo(uint16_t id){
     return animals_food[id];
   }
+  
+	command void FeedingSpot.warnAboutFS(uint16_t quant){
+		
+		radio_msg_t* rcm;
+		uint16_t id_fspot = rand() % 20;
+		
+		dbg("RadioMsgC", "Animal %d is approxing fspot %d.\n", TOS_NODE_ID, id_fspot);	
+					
+		rcm = (radio_msg_t*)call Packet.getPayload(&packet, sizeof(radio_msg_t));
+					
+		if (rcm == NULL) {
+			return;
+		}
+		rcm->type = EATEN_FROM_SPOT;
+		rcm->id = rand();
+		rcm->src = 0;
+		rcm->dest = 0;
+		rcm->x = 0;
+		rcm->y = 0;
+		rcm->spot = id_fspot;
+		rcm->quantity = quant;
+
+		call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_msg_t));
+	}
+
 }
 
 
