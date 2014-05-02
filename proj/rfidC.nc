@@ -16,7 +16,7 @@ implementation {
 	food_info food;
 
 	event void Boot.booted() {
-    call MilliTimer.startPeriodic(120000);
+    call MilliTimer.startPeriodic(90000);
   }
 
 
@@ -25,8 +25,9 @@ implementation {
 		uint16_t sensor;
 		last_update = time(&last_update);
 
-		sensor = call FeedingSpot.sense();
-				
+		sensor = (rand() % 2); //random to determine if there's an animal nearby or not
+		food = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
+
 		if (sensor) {
 			food = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
 			

@@ -152,11 +152,12 @@ implementation {
 				break;
 			case EATEN_FROM_SPOT:
 				v = feeding_spots[rcm->spot];
-				v -= rcm->quantity;
-				if(v >= 0){
-					feeding_spots[rcm->spot] = v;
-				}
-				else feeding_spots[rcm->spot] = 0;
+				if(v >= rcm->quantity)
+					v -= rcm->quantity;
+				else v = 0;
+				
+				feeding_spots[rcm->spot] = v;
+				
 				broadcast = TRUE;
 				break;
 		}
@@ -184,16 +185,7 @@ implementation {
       locked = FALSE;
     }
   }
-  
-  command uint16_t FeedingSpot.sense() {
-	uint16_t bicho_near;
-	
-	bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
-	
-	return bicho_near;
- }
  
-
   command food_info FeedingSpot.getFoodInfo(uint16_t id){
     return animals_food[id];
   }
@@ -236,6 +228,7 @@ implementation {
 				animals_food[TOS_NODE_ID].quantity_tot += order_quant;
 				dbg("RadioMsgC", "Ok, he'll just take the %dkg available, though he still wanted %dkg more.\n", order_quant, daily_quant-order_quant);
 			}
+
 		}	
 		
 		rcm = (radio_msg_t*)call Packet.getPayload(&packet, sizeof(radio_msg_t));
