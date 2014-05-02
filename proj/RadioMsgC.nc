@@ -190,16 +190,7 @@ implementation {
       locked = FALSE;
     }
   }
-  
-  command uint16_t FeedingSpot.sense() {
-	uint16_t bicho_near;
-	
-	bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
-	
-	return bicho_near;
- }
  
-
   command food_info FeedingSpot.getFoodInfo(uint16_t id){
     return animals_food[id];
   }

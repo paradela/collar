@@ -26,7 +26,7 @@ implementation {
 		uint16_t quant;
 		last_update = time(&last_update);
 
-		sensor = call FeedingSpot.sense();
+		sensor = bicho_near = (rand() % 2); //random to determine if there's an animal nearby or not
 		food = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
 		quant = food.quantity_ind;
 		
