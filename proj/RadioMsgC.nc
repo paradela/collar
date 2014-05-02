@@ -154,11 +154,12 @@ implementation {
 				break;
 			case EATEN_FROM_SPOT:
 				v = feeding_spots[rcm->spot];
-				v -= rcm->quantity;
-				if(v >= 0){
-					feeding_spots[rcm->spot] = v;
-				}
-				else feeding_spots[rcm->spot] = 0;
+				if(v >= rcm->quantity;)
+					v -= rcm->quantity;
+				else v = 0;
+				
+				feeding_spots[rcm->spot] = v;
+				
 				broadcast = TRUE;
 				break;
 		}
