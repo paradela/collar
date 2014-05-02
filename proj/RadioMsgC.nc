@@ -157,10 +157,6 @@ implementation {
 				v -= rcm->quantity;
 				if(v >= 0){
 					feeding_spots[rcm->spot] = v;
-					if (v >= animals_food[rcm->dest].quantity_ind)
-						animals_food[rcm->dest].quantity_tot = rcm->quantity; 
-					else 
-						animals_food[rcm->dest].quantity_tot += v;
 				}
 				else feeding_spots[rcm->spot] = 0;
 				broadcast = TRUE;
@@ -198,10 +194,40 @@ implementation {
 	command void FeedingSpot.warnAboutFS(uint16_t quant){
 		
 		radio_msg_t* rcm;
-		uint16_t id_fspot = rand() % 20;
+		uint16_t id_fspot = rand() % 10;
+		uint16_t tmp;
+		uint16_t new_quant;
+				
+		animals_food[TOS_NODE_ID] = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
 		
-		dbg("RadioMsgC", "Animal %d is approxing fspot %d.\n", TOS_NODE_ID, id_fspot);	
-					
+		dbg("RadioMsgC", "Animal %d is approaching fspot %d.\n He wants to eat %dkg\n", TOS_NODE_ID, id_fspot, animals_food[TOS_NODE_ID].quantity_ind);
+		
+		//check if the animal already ate his portion
+		if(animals_food[TOS_NODE_ID].quantity_tot == animals_food[TOS_NODE_ID].quantity_ind){
+				new_quant = 0;
+				dbg("RadioMsgC", "He has had enough for the day.\n");
+		}	
+		
+		//check if the animal still hasn't eaten his portion
+		if(animals_food[TOS_NODE_ID].quantity_tot < animals_food[TOS_NODE_ID].quantity_ind){
+				//check how much food is in the wanted fspot
+				tmp = feeding_spots[TOS_NODE_ID];
+				//if there is enough food, proceed has usual
+				if(tmp >= quant){
+					new_quant = quant - animals_food[TOS_NODE_ID].quantity_tot;
+					animals_food[TOS_NODE_ID].quantity_tot += new_quant;
+					dbg("RadioMsgC", "There is enough, yay!\n");
+				}
+				//if there isn't enough, calculate de the difference between what he wants and what is available, so that he only asks for what is there
+				else { 
+					quant -= tmp;
+					tmp = animals_food[TOS_NODE_ID].quantity_ind - quant; 
+					new_quant = tmp - animals_food[TOS_NODE_ID].quantity_tot;
+					animals_food[TOS_NODE_ID].quantity_tot += new_quant;
+					dbg("RadioMsgC", "Ok, from the available %dkg he'll just take %dkg.\n", tmp, new_quant);
+				}
+		}	
+		
 		rcm = (radio_msg_t*)call Packet.getPayload(&packet, sizeof(radio_msg_t));
 					
 		if (rcm == NULL) {
@@ -214,7 +240,7 @@ implementation {
 		rcm->x = 0;
 		rcm->y = 0;
 		rcm->spot = id_fspot;
-		rcm->quantity = quant;
+		rcm->quantity = new_quant;
 
 		call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_msg_t));
 	}
