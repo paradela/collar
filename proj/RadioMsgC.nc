@@ -26,9 +26,7 @@ implementation {
   uint16_t feeding_spots[100]; //food in spots
   food_info animals_food[10000];
   
-  uint16_t eaten = 0;
-  uint16_t can_eat = 0;
-  
+ 
  
   event void Boot.booted() {
     call AMControl.start();
@@ -200,41 +198,44 @@ implementation {
     return animals_food[id];
   }
   
-	command void FeedingSpot.warnAboutFS(uint16_t quant){
+	command void FeedingSpot.warnAboutFS(){
 		
 		radio_msg_t* rcm;
+		
 		uint16_t id_fspot = rand() % 10;
-		uint16_t tmp;
-		uint16_t new_quant;
+		
+		uint16_t fspot_quant;
+		uint16_t daily_quant;
+		uint16_t cons_quant;
+		uint16_t order_quant;
 				
 		animals_food[TOS_NODE_ID] = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
+		daily_quant = animals_food[TOS_NODE_ID].quantity_ind; //how much food the animal can eat per day
+		cons_quant = animals_food[TOS_NODE_ID].quantity_tot; //how much food the animal already ate
+		order_quant = daily_quant - cons_quant; //how much food the animal can still eat
+			
+		fspot_quant = feeding_spots[TOS_NODE_ID]; //how much food is in the wanted fspot
 		
-		dbg("RadioMsgC", "Animal %d is approaching fspot %d.\n He wants to eat %dkg\n", TOS_NODE_ID, id_fspot, animals_food[TOS_NODE_ID].quantity_ind);
+		dbg("RadioMsgC", "Animal %d is approaching fspot %d and wants to eat %dkg.\n This fspot has %dkg left.\n", TOS_NODE_ID, id_fspot, order_quant, fspot_quant);
 		
 		//check if the animal already ate his portion
-		if(animals_food[TOS_NODE_ID].quantity_tot == animals_food[TOS_NODE_ID].quantity_ind){
-				new_quant = 0;
-				dbg("RadioMsgC", "He has had enough for the day.\n");
+		if(!order_quant){
+			dbg("RadioMsgC", "He already ate his allowed %kg per day.\n", daily_quant);
 		}	
 		
 		//check if the animal still hasn't eaten his portion
-		if(animals_food[TOS_NODE_ID].quantity_tot < animals_food[TOS_NODE_ID].quantity_ind){
-				//check how much food is in the wanted fspot
-				tmp = feeding_spots[TOS_NODE_ID];
-				//if there is enough food, proceed has usual
-				if(tmp > quant || tmp == quant){
-					new_quant = quant - animals_food[TOS_NODE_ID].quantity_tot;
-					animals_food[TOS_NODE_ID].quantity_tot += new_quant;
-					dbg("RadioMsgC", "There is enough, yay!\n");
-				}
-				//if there isn't enough, calculate de the difference between what he wants and what is available, so that he only asks for what is there
-				else { 
-					quant -= tmp;
-					tmp = animals_food[TOS_NODE_ID].quantity_ind - quant; 
-					new_quant = tmp - animals_food[TOS_NODE_ID].quantity_tot;
-					animals_food[TOS_NODE_ID].quantity_tot += new_quant;
-					dbg("RadioMsgC", "Ok, from the available %dkg he'll just take %dkg.\n", tmp, new_quant);
-				}
+		if(cons_quant < daily_quant){
+			//if there is enough food, proceed has usual
+			if(fspot_quant >= order_quant){ 
+				animals_food[TOS_NODE_ID].quantity_tot += order_quant;
+				dbg("RadioMsgC", "There is enough, he'll take %dkg!\n", order_quant);
+			}
+			//if there isn't enough he only asks for what is there
+			else { 
+				order_quant = fspot_quant;
+				animals_food[TOS_NODE_ID].quantity_tot += order_quant;
+				dbg("RadioMsgC", "Ok, he'll just take the %dkg available, though he still wanted %dkg more.\n", order_quant, daily_quant-order_quant);
+			}
 		}	
 		
 		rcm = (radio_msg_t*)call Packet.getPayload(&packet, sizeof(radio_msg_t));
@@ -249,7 +250,7 @@ implementation {
 		rcm->x = 0;
 		rcm->y = 0;
 		rcm->spot = id_fspot;
-		rcm->quantity = new_quant;
+		rcm->quantity = order_quant;
 
 		call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_msg_t));
 	}

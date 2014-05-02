@@ -23,17 +23,15 @@ implementation {
 	event void MilliTimer.fired() {
 
 		uint16_t sensor;
-		uint16_t quant;
 		last_update = time(&last_update);
 
 		sensor = call FeedingSpot.sense();
 				
 		if (sensor) {
 			food = call FeedingSpot.getFoodInfo(TOS_NODE_ID);
-			quant = food.quantity_ind;
 			
 			if(last_update+500000 > food.last_meal){ //simulates that an animal can only eat if it has been more than 24h after his last meal
-				call FeedingSpot.warnAboutFS(quant);
+				call FeedingSpot.warnAboutFS();
 				food.last_meal = last_update;	
 			}
 			else 
